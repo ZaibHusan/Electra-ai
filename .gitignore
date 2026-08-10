@@ -1,0 +1,82 @@
+# Dependencies
+node_modules/
+
+# Environment Variables
+.env
+.env.local
+.env.development
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime Data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+
+# Build Output
+dist/
+build/
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Next.js
+.next/
+out/
+
+# Vite
+.vite/
+
+# Temporary Files
+tmp/
+temp/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/*
+
+# JetBrains
+.idea/
+
+# LangGraph Checkpoints
+.checkpoints/
+
+# Database
+*.sqlite
+*.db
+
+# Uploads
+uploads/
+
+# Generated PDFs
+pdfs/
+
+# Secrets
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Docker
+.docker/
+
+# Misc
+*.tgz
