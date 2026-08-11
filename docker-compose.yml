@@ -1,0 +1,25 @@
+services:
+  agent-service:
+    build:
+      context: ./backend/agent-service
+    container_name: electra-agent
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/agent-service/.env
+
+  app-service:
+    build:
+      context: ./backend/app-service
+    container_name: electra-app
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./backend/app-service/.env
+
+  # frontend-service:
+  #   build:
+  #     context: ./frontend
+  #   container_name: electra-frontend
+  #   ports:
+  #     - "8080:8080"
