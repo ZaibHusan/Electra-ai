@@ -14,22 +14,23 @@ export const agentController = async (req, res) => {
       });
     }
 
-    const response = await agentWorkflow.invoke({
-      messages: [
-        new HumanMessage(prompt)
-      ],
-      userId
-    }, {
-      configurable: {
-        thread_id: userId
-      }
-    })
+    const result =
+      await agentWorkflow.invoke(
+        {
+          customerId: userId,
+          message: prompt
+        },
+        {
+          configurable: {
+            thread_id: userId
+          }
+        }
+      );
 
-    const lastMessage = response.messages[response.messages.length - 1];
 
     return res.status(200).json({
       success: true,
-      message: lastMessage.content
+      message: result.response,
     });
   }
   catch (error) {

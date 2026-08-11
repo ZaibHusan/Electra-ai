@@ -21,14 +21,18 @@ const getvectorStore = async () => {
 
 
 
-export const retrieveDocuments = async (query, k = 4) => {
-    const vectorStore = await getvectorStore();
-    const document =
-        await vectorStore.similaritySearch(
-            query,
-            k
-        )
+export const retrieveDocuments =
+async (query, k = 8) => {
 
-    return document;
-}
+  const vectorStore =
+    await getvectorStore();
 
+  const results =
+    await vectorStore
+      .similaritySearchWithScore(
+        query,
+        k
+      );
+
+  return results;
+};

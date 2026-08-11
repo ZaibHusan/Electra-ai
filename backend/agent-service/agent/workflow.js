@@ -1,43 +1,171 @@
 import {
-    StateGraph,
-    START,
-    END,
+  StateGraph,
+  START,
+  END,
 } from "@langchain/langgraph";
 
-import {
-    ToolNode,
-    toolsCondition,
-} from "@langchain/langgraph/prebuilt";
+import { AgentState }
+from "./state.js";
 
-import { AgentState } from "./state.js";
-import { agentNode } from "./nodes/agent.node.js";
-import { tools } from '../tools/rag.tool.js';
-import { checkpointer } from '../memory/mongodb.checkpointer.js';
+import { loadMemoryNode }
+from "./nodes/loadMemory.node.js";
 
-const workflow = new StateGraph(AgentState);
+import { salesRouterNode }
+from "./nodes/salesRouter.node.js";
 
-workflow.addNode("agent", agentNode);
+import { ragNode }
+from "./nodes/rag.node.js";
+
+import { skipRagNode }
+from "./nodes/skipRag.node.js";
+
+import { salesExpertNode }
+from "./nodes/salesExpert.node.js";
+
+import { updateMemoryNode }
+from "./nodes/updateMemory.node.js";
+
+import { summaryNode }
+from "./nodes/summary.node.js";
+
+import { handoffNode }
+from "./nodes/handoff.node.js";
+
+import { routeDecision }
+from "./router/routeDecision.js";
+
+import { loadMemoryDecision }
+from "./router/loadMemoryDecision.js";
+
+import { checkpointer }
+from "../memory/mongodb.checkpointer.js";
+
+const workflow =
+new StateGraph(AgentState);
+
+// =====================
+// Nodes
+// =====================
 
 workflow.addNode(
-    "tools",
-    new ToolNode(tools)
+  "loadMemory",
+  loadMemoryNode
 );
 
-workflow.addEdge(
-    START,
-    "agent"
+workflow.addNode(
+  "salesRouter",
+  salesRouterNode
 );
+
+workflow.addNode(
+  "rag",
+  ragNode
+);
+
+workflow.addNode(
+  "skipRag",
+  skipRagNode
+);
+
+workflow.addNode(
+  "salesExpert",
+  salesExpertNode
+);
+
+workflow.addNode(
+  "updateMemory",
+  updateMemoryNode
+);
+
+workflow.addNode(
+  "summary",
+  summaryNode
+);
+
+workflow.addNode(
+  "processHandoff",
+  handoffNode
+);
+
+// =====================
+// Start
+// =====================
+
+workflow.addEdge(
+  START,
+  "loadMemory"
+);
+
+// =====================
+// Memory Check
+// =====================
 
 workflow.addConditionalEdges(
-    "agent",
-    toolsCondition
+  "loadMemory",
+  loadMemoryDecision,
+  {
+    continue:
+      "salesRouter",
+
+    end:
+      END,
+  }
+);
+
+// =====================
+// Sales Router
+// =====================
+
+workflow.addConditionalEdges(
+  "salesRouter",
+  routeDecision,
+  {
+    rag: "rag",
+
+    direct:
+      "skipRag",
+  }
+);
+
+// =====================
+// Merge Branches
+// =====================
+
+workflow.addEdge(
+  "rag",
+  "salesExpert"
 );
 
 workflow.addEdge(
-    "tools",
-    "agent"
+  "skipRag",
+  "salesExpert"
 );
 
-export const agentWorkflow = workflow.compile({
-    checkpointer
+// =====================
+// Main Flow
+// =====================
+
+workflow.addEdge(
+  "salesExpert",
+  "updateMemory"
+);
+
+workflow.addEdge(
+  "updateMemory",
+  "summary"
+);
+
+workflow.addEdge(
+  "summary",
+  "processHandoff"
+);
+
+workflow.addEdge(
+  "processHandoff",
+  END
+);
+
+export const agentWorkflow =
+workflow.compile({
+  checkpointer,
 });

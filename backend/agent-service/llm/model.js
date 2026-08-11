@@ -15,15 +15,7 @@ const gemini = new ChatGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_API_KEY,
 });
 
-// Bind the RAG tool to each model so it can decide on its own,
-// per message, whether it needs to call search_products.
-const groqWithTools = groq.bindTools(tools, {
-  tool_choice: "auto",
-});
-const geminiWithTools = gemini.bindTools(tools, {
-  tool_choice: "auto",
-});
 
 export const GetLlmModel = (provider = "groq") => {
-  return provider === "groq" ? groqWithTools : geminiWithTools;
+  return provider === "groq" ? groq : gemini;
 };

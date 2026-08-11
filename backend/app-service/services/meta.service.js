@@ -7,6 +7,8 @@ export const sendMessage = async (
 ) => {
 
     try {
+
+        if(message == null) return;
         switch (platform) {
 
             case "whatsapp":
