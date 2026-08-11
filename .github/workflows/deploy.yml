@@ -1,0 +1,76 @@
+name: Deploy Electra AI
+
+on:
+  push:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: zaibhusan
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        service: [agent-service, app-service]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend/${{ matrix.service }}
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.OWNER }}/electra-${{ matrix.service }}:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+
+          script: |
+            cd /var/www/electra-ai
+
+            echo "Pulling latest Docker images..."
+            docker compose -f docker-compose.prod.yml pull
+
+            echo "Starting Electra AI..."
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+            echo "Waiting for services..."
+            sleep 10
+
+            echo "Running health checks..."
+
+            if curl -f http://localhost:4001/health && curl -f http://localhost:4000/health; then
+              echo "✅ Health checks passed"
+            else
+              echo "❌ Health check failed"
+              docker compose -f docker-compose.prod.yml ps
+              docker compose -f docker-compose.prod.yml logs --tail=50
+              exit 1
+            fi
+
+            echo "🚀 Electra AI deployment successful!"

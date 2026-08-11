@@ -1,7 +1,6 @@
 services:
   agent-service:
-    build:
-      context: ./backend/agent-service
+    image: ghcr.io/ZaibHusan/electra-agent-service:latest
     container_name: electra-agent
     restart: unless-stopped
     ports:
@@ -10,8 +9,7 @@ services:
       - ./backend/agent-service/.env
 
   app-service:
-    build:
-      context: ./backend/app-service
+    image: ghcr.io/ZaibHusan/electra-app-service:latest
     container_name: electra-app
     restart: unless-stopped
     ports:

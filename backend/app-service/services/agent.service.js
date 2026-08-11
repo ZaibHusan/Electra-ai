@@ -1,6 +1,8 @@
 
 
-const Backend_Url = process.env.BACKEND_URL || "http://localhost:3000";
+const Backend_Url =
+  process.env.AGENT_URL ||
+  "http://agent-service:3000";
 
 
 export const callAgent = async (
