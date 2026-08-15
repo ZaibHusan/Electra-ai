@@ -1,8 +1,8 @@
 // src/services/socket.service.js
 import { io } from "socket.io-client";
-const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || "http://82.180.133.170:4000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-export const socket = io(SOCKET_URL, {
+export const socket = io(BACKEND_URL, {
   autoConnect: true,
   reconnection: true,
   reconnectionAttempts: 5,
