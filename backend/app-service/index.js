@@ -17,10 +17,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 app.use(cors({
-  origin: 'http://localhost:5173', // MUST be the exact URL of your React app, no trailing slash
+  origin: true,
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(cookieParser());
 app.use(express.json());
 
