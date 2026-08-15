@@ -18,13 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        include:
-          - service: agent-service
-            context: ./backend/agent-service
-          - service: app-service
-            context: ./backend/app-service
-          - service: frontend
-            context: ./frontend
+        service: [agent-service, app-service]
 
     steps:
       - name: Checkout code
@@ -40,7 +34,7 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.context }}
+          context: ./backend/${{ matrix.service }}
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.OWNER }}/electra-${{ matrix.service }}:latest
 
@@ -70,8 +64,7 @@ jobs:
 
             echo "Running health checks..."
 
-            # Checking Agent (4001), Backend (4000), and Frontend (4002)
-            if curl -f http://localhost:4001/health && curl -f http://localhost:4000/health && curl -f http://localhost:4002/; then
+            if curl -f http://localhost:4001/health && curl -f http://localhost:4000/health; then
               echo "✅ Health checks passed"
             else
               echo "❌ Health check failed"
