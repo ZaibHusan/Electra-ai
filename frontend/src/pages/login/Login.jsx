@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Zap, Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
-import './login.css';
+import './Login.css';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function Login() {
