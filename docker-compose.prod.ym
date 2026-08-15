@@ -22,4 +22,4 @@ services:
     container_name: electra-frontend
     restart: unless-stopped
     ports:
-      - "4002:80"
+      - "4002:4002"
