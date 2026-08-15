@@ -31,6 +31,7 @@ export const agentController = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: result.response,
+      totalTokens: result.totalTokens
     });
   }
   catch (error) {

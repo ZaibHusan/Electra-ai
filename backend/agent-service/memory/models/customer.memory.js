@@ -39,16 +39,7 @@ const customerMemorySchema = new mongoose.Schema(
       default: "NEW",
     },
 
-    lastMessages: [
-      {
-        role: String,
-        content: String,
-        timestamp: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
+  
   },
   {
     timestamps: true,

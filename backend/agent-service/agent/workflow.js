@@ -25,8 +25,8 @@ from "./nodes/salesExpert.node.js";
 import { updateMemoryNode }
 from "./nodes/updateMemory.node.js";
 
-import { summaryNode }
-from "./nodes/summary.node.js";
+// import { summaryNode }
+// from "./nodes/summary.node.js";
 
 import { handoffNode }
 from "./nodes/handoff.node.js";
@@ -77,10 +77,6 @@ workflow.addNode(
   updateMemoryNode
 );
 
-workflow.addNode(
-  "summary",
-  summaryNode
-);
 
 workflow.addNode(
   "processHandoff",
@@ -150,13 +146,10 @@ workflow.addEdge(
   "updateMemory"
 );
 
-workflow.addEdge(
-  "updateMemory",
-  "summary"
-);
+
 
 workflow.addEdge(
-  "summary",
+  "updateMemory",
   "processHandoff"
 );
 

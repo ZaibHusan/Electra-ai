@@ -1,0 +1,181 @@
+/* ==========================================================================
+   Electra AI - Neural Pulse Loader (Red/Yellow Theme)
+   ========================================================================== */
+
+.electra-loader-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #F7F8FA;
+    z-index: 9999;
+    gap: 28px;
+}
+
+/* --- The Neural Core --- */
+.electra-core-wrapper {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Outer breathing halo (Soft Red) */
+.electra-halo {
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(217, 45, 32, 0.12) 0%, transparent 70%);
+    animation: halo-breathe 2.5s ease-in-out infinite;
+}
+
+/* Dual orbit rings — Red to Yellow gradient */
+.electra-orbit-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0%,
+        rgba(245, 158, 11, 0.2) 25%, /* Yellow fade */
+        #D92D20 75%,                 /* Solid Red */
+        #F59E0B 90%,                 /* Solid Yellow tip */
+        transparent 100%
+    );
+    animation: spin-orbit 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+    -webkit-mask-image: radial-gradient(circle, transparent 62%, black 64%);
+    mask-image: radial-gradient(circle, transparent 62%, black 64%);
+}
+
+/* Counter-rotating accent ring (Yellow) */
+.electra-accent-ring {
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    border: 2px dashed rgba(245, 158, 11, 0.4);
+    animation: spin-orbit-reverse 3s linear infinite;
+}
+
+/* The Solid Core */
+.electra-core {
+    position: absolute;
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, #FFFFFF 0%, #F7F8FA 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        0 4px 16px rgba(217, 45, 32, 0.2), /* Red shadow */
+        0 1px 3px rgba(20, 23, 31, 0.06);
+    z-index: 10;
+}
+
+/* Zap icon */
+.electra-zap-icon {
+    color: #D92D20; /* Primary Red */
+    animation: pulse-core 2s ease-in-out infinite;
+}
+
+/* --- Typography --- */
+.electra-loader-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.electra-brand-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #14171F;
+    letter-spacing: -0.03em;
+    margin: 0;
+}
+
+.electra-brand-name span {
+    color: #D92D20; /* Red AI text */
+}
+
+.electra-system-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Status chip */
+.electra-status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EA;
+    border-radius: 999px;
+    font-size: 10px;
+}
+
+.electra-status-dot {
+    width: 6px;
+    height: 6px;
+    background: #F59E0B; /* Yellow dot looks better for a "loading" status */
+    border-radius: 50%;
+    animation: status-blink 1.5s ease-in-out infinite;
+}
+
+/* --- Animations --- */
+@keyframes spin-orbit {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes spin-orbit-reverse {
+    0% { transform: rotate(360deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@keyframes pulse-core {
+    0%, 100% { transform: scale(1); opacity: 0.85; }
+    50% { transform: scale(1.06); opacity: 1; filter: drop-shadow(0 0 6px rgba(217, 45, 32, 0.5)); }
+}
+
+@keyframes halo-breathe {
+    0%, 100% { transform: scale(0.95); opacity: 0.6; }
+    50% { transform: scale(1.05); opacity: 1; }
+}
+
+@keyframes status-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* The bouncing dots for "Initializing..." */
+.loading-dots span {
+    animation: loading-dots 1.4s infinite both;
+    font-weight: bold;
+    margin-left: 1px;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: 0s; }
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes loading-dots {
+    0% { opacity: 0.2; transform: translateY(0); }
+    20% { opacity: 1; transform: translateY(-2px); }
+    100% { opacity: 0.2; transform: translateY(0); }
+}

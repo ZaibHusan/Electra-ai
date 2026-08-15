@@ -2,6 +2,7 @@ import { z } from "zod";
 import { GetLlmModel } from "../../llm/model.js";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { ROUTER_PROMPT } from "../../prompt/router.prompt.js";
+import getTokens from "../../utils/getToken.js";
 
 const routerSchema = z.object({
   route: z.enum(["rag", "direct"]),
@@ -50,8 +51,13 @@ ${state.message}
 `)
   ]);
 
+  const token = await getTokens(result);
+  const currentToken = state.totalTokens || 0;
+
+  console.log(`Token usage: ${token}`);
   return {
     ...state,
-    router: result
+    router: result,
+    totalTokens: currentToken + token
   };
 };

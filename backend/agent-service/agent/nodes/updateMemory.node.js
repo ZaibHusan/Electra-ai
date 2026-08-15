@@ -26,25 +26,6 @@ async (state) => {
     ...state.router.facts,
   };
 
-  // Save customer message
-  memory.lastMessages.push({
-    role: "user",
-    content: state.message,
-  });
-
-  // Save AI reply
-  memory.lastMessages.push({
-    role: "assistant",
-    content: state.response,
-  });
-
-  // Keep only latest 20 messages
-  if (
-    memory.lastMessages.length > 20
-  ) {
-    memory.lastMessages =
-      memory.lastMessages.slice(-20);
-  }
 
   await memory.save();
 

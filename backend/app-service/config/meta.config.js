@@ -6,6 +6,10 @@ dotenv.config();
 export const META_CONFIG = {
     VERIFY_TOKEN: process.env.VERIFY_TOKEN,
 
+
+    INSTAGRAM_ACCESS_TOKEN:
+        process.env.INSTAGRAM_ACCESS_TOKEN,
+
     PAGE_ACCESS_TOKEN:
         process.env.PAGE_ACCESS_TOKEN,
 

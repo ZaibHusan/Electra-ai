@@ -8,9 +8,11 @@ import { GetLlmModel } from "../../llm/model.js";
 import {
   SALES_EXPERT_PROMPT
 } from "../../prompt/salesExpert.prompt.js";
+import getTokens from "../../utils/getToken.js";
 
 export const salesExpertNode =
   async (state) => {
+
 
     const llm =
       GetLlmModel("gemini");
@@ -43,10 +45,14 @@ ${state.ragContext}
 `)
       ]);
 
+
+    const token = getTokens(result);
+    const currentToken = state.totalTokens || 0;
     return {
       ...state,
 
       response:
-        result.content
+        result.content,
+      totalTokens: currentToken + token
     };
   };

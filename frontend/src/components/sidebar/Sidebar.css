@@ -1,0 +1,336 @@
+/* ==========================================================================
+   Electra AI - Professional Sidebar Styles (Red/Yellow Theme)
+   ========================================================================== */
+
+/* Sidebar.css */
+.sidebar-container {
+    background-color: #FFFFFF;
+    border-right: 1px solid #E5E7EA;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    z-index: 1000;
+
+    /* DESKTOP DIMENSIONS (Fixed for Flexbox) */
+    width: 72px;
+    height: 100%;
+    /* Fill the flex parent */
+    flex-shrink: 0;
+    /* Prevents the inbox from squishing the sidebar */
+}
+
+/* --- KEEP THE REST OF YOUR SIDEBAR CSS EXACTLY AS YOU WROTE IT HERE --- */
+/* (Brand Logo, Navigation Links, Footer & Profile Menu, Mobile Queries) */
+
+/* --- Brand Logo --- */
+.sidebar-brand {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.brand-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #D92D20 0%, #F59E0B 100%);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.brand-icon:hover {
+    box-shadow: 0 4px 12px rgba(217, 45, 32, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Square E Logo */
+.brand-icon::before {
+    content: 'E';
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #FFFFFF;
+}
+
+/* --- Navigation Links --- */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    align-items: center;
+    flex: 1;
+}
+
+.nav-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    color: #6B7280;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 2px 0;
+}
+
+.nav-label {
+    display: none;
+}
+
+.nav-item:hover {
+    color: #14171F;
+    background-color: #F7F8FA;
+    transform: translateX(2px);
+}
+
+/* The Active State */
+.nav-item.active {
+    color: #D92D20;
+    background-color: rgba(217, 45, 32, 0.06);
+    font-weight: 600;
+}
+
+/* Active indicator bar */
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 20px;
+    border-radius: 0 3px 3px 0;
+    background: #D92D20;
+}
+
+/* Active icon glow */
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    background: radial-gradient(circle at center, rgba(217, 45, 32, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Tooltip on hover */
+.nav-item::after {
+    content: attr(title);
+    position: absolute;
+    left: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #14171F;
+    color: #FFFFFF;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 100;
+}
+
+.nav-item:hover::after {
+    opacity: 1;
+}
+
+/* Remove the active glow when tooltip is shown */
+.nav-item.active::after {
+    content: attr(title);
+    background: #14171F;
+    color: #FFFFFF;
+    inset: auto;
+    left: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 100;
+}
+
+.nav-item.active:hover::after {
+    opacity: 1;
+}
+
+/* --- Footer & Profile Menu --- */
+.sidebar-footer {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 16px;
+    padding: 0
+}
+
+.profile-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #D92D20 0%, #F59E0B 100%);
+    color: #FFFFFF;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.profile-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background: #10B981;
+    /* Keep the green dot for "online" status */
+    border-radius: 50%;
+    border: 2px solid #FFFFFF;
+}
+
+.profile-btn:hover,
+.profile-btn.active {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(217, 45, 32, 0.4);
+}
+
+/* Popover Logout Menu */
+.profile-menu {
+    position: absolute;
+    left: 56px;
+    bottom: 0;
+    background-color: #FFFFFF;
+    border: 1px solid #E5E7EA;
+    border-radius: 10px;
+    padding: 6px;
+    box-shadow: 0 10px 30px rgba(20, 23, 31, 0.1);
+    min-width: 160px;
+    animation: slideIn 0.2s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    color: #B91C1C;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.logout-btn:hover {
+    background-color: #FEF2F2;
+    transform: translateX(2px);
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVENESS (Bottom Navigation Bar)
+   ========================================================================== */
+@media (max-width: 767px) {
+    .sidebar-container {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        width: 100vw;
+        height: 64px;
+        flex-direction: row;
+        padding: 0 12px;
+        border-right: none;
+        border-top: 1px solid #E5E7EA;
+        box-shadow: 0 -4px 16px rgba(20, 23, 31, 0.04);
+        backdrop-filter: blur(10px);
+        background-color: rgba(255, 255, 255, 0.95);
+    }
+
+    .sidebar-brand {
+        display: none;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+        gap: 0;
+        justify-content: space-around;
+        height: 100%;
+        flex: 1;
+    }
+
+    .nav-item {
+        width: 44px;
+        height: 44px;
+    }
+
+    .nav-item.active::before {
+        display: none;
+    }
+
+    /* Active indicator on mobile - top bar instead */
+    .nav-item.active {
+        border-top: 2px solid #D92D20;
+        border-radius: 0 0 10px 10px;
+    }
+
+    .nav-item:hover::after,
+    .nav-item.active::after {
+        display: none;
+    }
+
+    .sidebar-footer {
+        width: auto;
+        margin-left: 8px;
+        padding-left: 8px;
+        margin-top: 0;
+    }
+
+    .profile-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .profile-menu {
+        left: auto;
+        right: 0;
+        bottom: 56px;
+    }
+}

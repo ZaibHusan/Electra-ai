@@ -18,3 +18,11 @@ services:
       - "4000:4000"
     env_file:
       - ./backend/app-service/.env
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: electra-frontend
+    restart: unless-stopped
+    ports:
+      - "4002:80"

@@ -1,0 +1,340 @@
+/* ==========================================================================
+   Electra AI - Login Page Styles (Red/Yellow Theme)
+   ========================================================================== */
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* --- Ambient Background Glows --- */
+.ambient-background {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.ambient-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+}
+
+.blob-primary {
+    top: -50%;
+    right: -25%;
+    width: 1000px;
+    height: 1000px;
+    background-color: rgba(217, 45, 32, 0.15);
+    /* Soft Red Glow */
+}
+
+.blob-secondary {
+    bottom: -50%;
+    left: -25%;
+    width: 800px;
+    height: 800px;
+    background-color: rgba(245, 158, 11, 0.15);
+    /* Soft Yellow/Amber Glow */
+}
+
+/* --- Main Layout --- */
+.login-main {
+    width: 100%;
+    max-width: 360px;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* --- Header --- */
+.login-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 32px;
+}
+
+.brand-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    /* Red to Yellow Gradient */
+    background: linear-gradient(135deg, #D92D20 0%, #F59E0B 100%);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(217, 45, 32, 0.15);
+}
+
+.brand-title {
+    font-size: 24px;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+}
+
+.brand-subtitle {
+    font-size: 13px;
+    color: #464555;
+}
+
+/* --- Card & Form --- */
+.login-card {
+    background-color: #FFFFFF;
+    border: 1px solid rgba(199, 196, 216, 0.6);
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(20, 23, 31, 0.04);
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.input-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #464555;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 12px;
+    color: #777587;
+}
+
+.form-input {
+    width: 100%;
+    background-color: #F2F4F6;
+    border: 1px solid #E1E2E4;
+    border-radius: 8px;
+    padding: 8px 12px 8px 36px;
+    font-size: 13px;
+    color: #191C1E;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.form-input::placeholder {
+    color: rgba(119, 117, 135, 0.6);
+}
+
+.form-input:focus {
+    border-color: #D92D20;
+    /* Red Focus */
+    background-color: #FFFFFF;
+    box-shadow: 0 0 0 2px rgba(217, 45, 32, 0.15);
+    /* Red Focus Ring */
+}
+
+/* Specific padding for password to accommodate toggle icon */
+input[type="password"],
+input[type="text"] {
+    padding-right: 36px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    color: #777587;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.toggle-password:hover {
+    color: #191C1E;
+}
+
+/* --- Button --- */
+.submit-btn {
+    margin-top: 8px;
+    width: 100%;
+    /* Red to Yellow Gradient */
+    background: linear-gradient(135deg, #D92D20 0%, #F59E0B 100%);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.submit-btn:hover:not(:disabled) {
+    /* Slightly darker gradient for hover */
+    background: linear-gradient(135deg, #B42318 0%, #D97706 100%);
+    box-shadow: 0 4px 12px rgba(217, 45, 32, 0.2);
+}
+
+.submit-btn:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* --- Footer --- */
+.login-footer {
+    margin-top: 32px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 8px;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.login-footer:hover {
+    opacity: 1;
+}
+
+.system-status,
+.system-version {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    color: #464555;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #F59E0B;
+    /* Yellow Status Dot */
+    display: inline-block;
+}
+
+/* ==========================================================================
+   Error Banner & Loading Animations
+   ========================================================================== */
+
+/* --- Error Banner --- */
+.error-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #FEF2F2;
+    /* Soft red background */
+    border: 1px solid #F87171;
+    /* Red border */
+    color: #B91C1C;
+    /* Dark red text */
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 4px;
+
+    /* Optional: A quick shake animation so it catches the eye */
+    animation: error-shake 0.4s ease-in-out;
+}
+
+@keyframes error-shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-4px);
+    }
+
+    50% {
+        transform: translateX(4px);
+    }
+
+    75% {
+        transform: translateX(-4px);
+    }
+}
+
+/* --- Button Spinner --- */
+.btn-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #FFFFFF;
+    animation: button-spin 0.8s linear infinite;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+@keyframes button-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Fix the span inside the button so the text and spinner align perfectly */
+.submit-btn>span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.error-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #FEF2F2;
+    border: 1px solid #F87171;
+    color: #B91C1C;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 16px;
+}

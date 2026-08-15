@@ -2,22 +2,24 @@ import { Annotation } from "@langchain/langgraph";
 
 
 export const AgentState =
-Annotation.Root({
+  Annotation.Root({
 
-  customerId: Annotation(),
+    customerId: Annotation(),
 
-  message: Annotation(),
+    message: Annotation(),
 
-  memory: Annotation(),
+    memory: Annotation(),
 
-  router: Annotation(),
+    router: Annotation(),
 
-  ragContext: Annotation(),
+    ragContext: Annotation(),
 
-  response: Annotation(),
+    response: Annotation(),
 
-  handoff: Annotation(),
-  
-  ragConfidence: Annotation(),
+    handoff: Annotation(),
 
-});
+    ragConfidence: Annotation(),
+
+    lastMessages: Annotation(),
+    totalTokens: Annotation(),
+  });

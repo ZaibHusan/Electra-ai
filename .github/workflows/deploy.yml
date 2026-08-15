@@ -17,8 +17,15 @@ jobs:
       packages: write
 
     strategy:
+      # Use 'include' so we can define custom paths for backend vs frontend
       matrix:
-        service: [agent-service, app-service]
+        include:
+          - service: agent-service
+            context: ./backend/agent-service
+          - service: app-service
+            context: ./backend/app-service
+          - service: frontend
+            context: ./frontend
 
     steps:
       - name: Checkout code
@@ -34,7 +41,7 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          context: ./backend/${{ matrix.service }}
+          context: ${{ matrix.context }} # Pulls the exact path from the matrix above
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.OWNER }}/electra-${{ matrix.service }}:latest
 
@@ -64,7 +71,8 @@ jobs:
 
             echo "Running health checks..."
 
-            if curl -f http://localhost:4001/health && curl -f http://localhost:4000/health; then
+            # Added the frontend check (Port 4002)
+            if curl -f http://localhost:4001/health && curl -f http://localhost:4000/health && curl -f http://localhost:4002/; then
               echo "✅ Health checks passed"
             else
               echo "❌ Health check failed"
