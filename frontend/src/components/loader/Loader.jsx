@@ -1,6 +1,6 @@
 import React from 'react';
 import { Zap } from 'lucide-react';
-import './loader.css';
+import './Loader.css';
 
 export default function Loader({ status = "Initializing environment" }) {
   return (
