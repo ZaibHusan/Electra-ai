@@ -11,6 +11,7 @@ import conversationsRoute from './routes/conversations.route.js';
 import { protect } from './middleware/protect.middleware.js';
 import { initSocket } from './sockets/socket.js';
 import http from 'http';
+import promptRoute from './routes/prompt.routes.js';
 
 dotenv.config();
 
@@ -45,11 +46,12 @@ app.get('/health', (req, res) => {
 app.use('/api/webhook', webhookRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/conversations', conversationsRoute);
+app.use('/api/prompt', promptRoute);
 
 
 app.use(errorHandler);
 
-server.listen(PORT, async() => {
+server.listen(PORT, async () => {
   await connectDb();
   await connectRedis();
   console.log(`🚀 Server running on port ${PORT}`);

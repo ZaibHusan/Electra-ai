@@ -1,33 +1,40 @@
-/* DashboardLayout.css */
+/* ================================================================= *
+   DASHBOARD LAYOUT STYLES
+   ================================================================ */
+
 body, html {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background-color: #F9FAFB; 
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: #F9FAFB; 
+    overflow: hidden;
 }
 
 .DashboardLayout {
-  display: flex;
-  flex-direction: row;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
 }
 
-/* Forces the Outlet (Inbox) to fill the remaining space */
+/* Forces the Outlet container to fill remaining space and handle vertical scrolling */
 .DashboardLayout > :nth-child(2) {
-  flex: 1;
-  height: 100%;
-  min-width: 0;
-  overflow: hidden;
+    flex: 1;
+    height: 100%;
+    min-width: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* Mobile responsiveness: Sidebar drops to the bottom */
 @media (max-width: 767px) {
-  .DashboardLayout {
-    flex-direction: column;
-  }
-  .DashboardLayout > :nth-child(2) {
-    order: -1; /* Puts the Inbox ABOVE the mobile bottom navigation */
-  }
+    .DashboardLayout {
+        flex-direction: column;
+    }
+    .DashboardLayout > :nth-child(2) {
+        order: -1;
+        height: auto;
+        flex: 1;
+    }
 }
