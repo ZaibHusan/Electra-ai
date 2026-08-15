@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 4002,
-    strictPort: true, // Optional: Tells Vite to crash if 4002 is already taken, instead of auto-switching to 4003
+    strictPort: true,
+    allowedHosts: true,
   }
 })
