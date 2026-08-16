@@ -13,6 +13,7 @@ import { initSocket } from './sockets/socket.js';
 import http from 'http';
 import promptRoute from './routes/prompt.routes.js';
 import adminRagRouter from './routes/admin.rag.routes.js';
+import systemRouter from './routes/admin.system.routes.js';
 
 dotenv.config();
 
@@ -49,7 +50,7 @@ app.use('/api/auth', authRoute);
 app.use('/api/conversations', conversationsRoute);
 app.use('/api/prompt', promptRoute);
 app.use('/api/admin/rag', adminRagRouter);
-
+app.use('/api/system', systemRouter)
 app.use(errorHandler);
 
 server.listen(PORT, async () => {

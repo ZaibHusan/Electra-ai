@@ -4,48 +4,31 @@ import {
   END,
 } from "@langchain/langgraph";
 
-import { AgentState }
-from "./state.js";
+import { AgentState } from "./state.js";
+import { checkSystemNode } from "./nodes/checkSystem.node.js";
+import { loadMemoryNode } from "./nodes/loadMemory.node.js";
+import { salesRouterNode } from "./nodes/salesRouter.node.js";
+import { ragNode } from "./nodes/rag.node.js";
+import { skipRagNode } from "./nodes/skipRag.node.js";
+import { salesExpertNode } from "./nodes/salesExpert.node.js";
+import { updateMemoryNode } from "./nodes/updateMemory.node.js";
+import { handoffNode } from "./nodes/handoff.node.js";
 
-import { loadMemoryNode }
-from "./nodes/loadMemory.node.js";
+import { routeDecision } from "./router/routeDecision.js";
+import { loadMemoryDecision } from "./router/loadMemoryDecision.js";
+import { systemCheckDecision } from "./router/systemCheckDecision.js";
+import { checkpointer } from "../memory/mongodb.checkpointer.js";
 
-import { salesRouterNode }
-from "./nodes/salesRouter.node.js";
-
-import { ragNode }
-from "./nodes/rag.node.js";
-
-import { skipRagNode }
-from "./nodes/skipRag.node.js";
-
-import { salesExpertNode }
-from "./nodes/salesExpert.node.js";
-
-import { updateMemoryNode }
-from "./nodes/updateMemory.node.js";
-
-// import { summaryNode }
-// from "./nodes/summary.node.js";
-
-import { handoffNode }
-from "./nodes/handoff.node.js";
-
-import { routeDecision }
-from "./router/routeDecision.js";
-
-import { loadMemoryDecision }
-from "./router/loadMemoryDecision.js";
-
-import { checkpointer }
-from "../memory/mongodb.checkpointer.js";
-
-const workflow =
-new StateGraph(AgentState);
+const workflow = new StateGraph(AgentState);
 
 // =====================
 // Nodes
 // =====================
+
+workflow.addNode(
+  "checkSystem",
+  checkSystemNode
+);
 
 workflow.addNode(
   "loadMemory",
@@ -77,19 +60,27 @@ workflow.addNode(
   updateMemoryNode
 );
 
-
 workflow.addNode(
   "processHandoff",
   handoffNode
 );
 
 // =====================
-// Start
+// Start Flow & Kill Switch Check
 // =====================
 
 workflow.addEdge(
   START,
-  "loadMemory"
+  "checkSystem"
+);
+
+workflow.addConditionalEdges(
+  "checkSystem",
+  systemCheckDecision,
+  {
+    continue: "loadMemory",
+    end: END,
+  }
 );
 
 // =====================
@@ -100,11 +91,8 @@ workflow.addConditionalEdges(
   "loadMemory",
   loadMemoryDecision,
   {
-    continue:
-      "salesRouter",
-
-    end:
-      END,
+    continue: "salesRouter",
+    end: END,
   }
 );
 
@@ -117,9 +105,7 @@ workflow.addConditionalEdges(
   routeDecision,
   {
     rag: "rag",
-
-    direct:
-      "skipRag",
+    direct: "skipRag",
   }
 );
 
@@ -146,8 +132,6 @@ workflow.addEdge(
   "updateMemory"
 );
 
-
-
 workflow.addEdge(
   "updateMemory",
   "processHandoff"
@@ -158,7 +142,6 @@ workflow.addEdge(
   END
 );
 
-export const agentWorkflow =
-workflow.compile({
+export const agentWorkflow = workflow.compile({
   checkpointer,
 });

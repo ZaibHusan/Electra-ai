@@ -23,4 +23,5 @@ export const AgentState =
     lastMessages: Annotation(),
     totalTokens: Annotation(),
     promptConfig: Annotation(),
+    isAiActive: Annotation()
   });
