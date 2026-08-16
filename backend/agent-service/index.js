@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import router from "./router/agent.router.js";
 import { connectMongoose } from "./config/mongoose.db.js";
+import ragRoutes from "./router/rag.routes.js";
 dotenv.config();
 
 
@@ -15,6 +16,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/api/agents', router);
+app.use('/api/rag', ragRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', service: 'app-service' });

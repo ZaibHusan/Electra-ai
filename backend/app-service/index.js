@@ -12,6 +12,7 @@ import { protect } from './middleware/protect.middleware.js';
 import { initSocket } from './sockets/socket.js';
 import http from 'http';
 import promptRoute from './routes/prompt.routes.js';
+import adminRagRouter from './routes/admin.rag.routes.js';
 
 dotenv.config();
 
@@ -47,7 +48,7 @@ app.use('/api/webhook', webhookRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/conversations', conversationsRoute);
 app.use('/api/prompt', promptRoute);
-
+app.use('/api/admin/rag', adminRagRouter);
 
 app.use(errorHandler);
 

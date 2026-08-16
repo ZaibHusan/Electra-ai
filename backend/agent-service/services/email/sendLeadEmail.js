@@ -100,23 +100,6 @@ export const sendLeadEmail =
 
     <hr>
 
-    <h2>
-      Recent Conversation
-    </h2>
-
-    ${memory.lastMessages
-          .slice(-10)
-          .map(
-            msg => `
-          <p>
-            <b>${msg.role}</b>:
-            ${msg.content}
-          </p>
-        `
-          )
-          .join("")
-        }
-
   </div>
 `
     });

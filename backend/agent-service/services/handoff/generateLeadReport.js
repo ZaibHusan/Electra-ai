@@ -32,13 +32,6 @@ ${JSON.stringify(memory.facts)}
 Summary:
 ${memory.summary}
 
-Recent Messages:
-${memory.lastMessages
-  .map(
-    m =>
-      `${m.role}: ${m.content}`
-  )
-  .join("\n")}
 `)
     ]);
 
