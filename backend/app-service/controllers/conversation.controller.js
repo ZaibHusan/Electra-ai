@@ -101,8 +101,17 @@ export const sendHumanMessage = async (req, res) => {
         }
 
         const conversation = await Conversation.findById(conversationId);
+
         if (!conversation) {
             return res.status(404).json({ success: false, message: "Conversation not found" });
+        }
+
+
+        const isAutoMode = conversation.isAutoMode;
+
+        if (isAutoMode) {
+            conversation.isAutoMode = false;
+            await conversation.save();
         }
 
         // Send to platform (WhatsApp, Messenger, Instagram)
