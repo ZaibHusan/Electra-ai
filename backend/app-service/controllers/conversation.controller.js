@@ -107,13 +107,6 @@ export const sendHumanMessage = async (req, res) => {
         }
 
 
-        const isAutoMode = conversation.isAutoMode;
-
-        if (isAutoMode) {
-            conversation.isAutoMode = false;
-            await conversation.save();
-        }
-
         // Send to platform (WhatsApp, Messenger, Instagram)
         await sendMessage(
             conversation.source,
@@ -130,6 +123,7 @@ export const sendHumanMessage = async (req, res) => {
         });
 
         // Update preview AND clear unreadCount
+        conversation.isAutoMode = false;
         conversation.lastMessage = text;
         conversation.lastMessageAt = newMessage.createdAt;
         conversation.unreadCount = 0; // Sending a reply means all incoming messages are read
