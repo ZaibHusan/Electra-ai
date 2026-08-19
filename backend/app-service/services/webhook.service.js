@@ -14,14 +14,21 @@ export const handleWebhook = async (body) => {
     // ==========================================
     // 1. HANDLE ADMIN ECHO MESSAGES (Messenger / Instagram)
     // ==========================================
-    if ((platform === "messenger" || platform === "instagram") && messaging?.message?.is_echo) {
-        // If sent by a human admin (not your bot app)
-        if (messaging.message.app_id !== process.env.MY_APP_ID) {
+    if (messaging?.message?.is_echo) {
+        
+        // FIX 1: Safely convert both App IDs to strings to prevent Number vs String mismatches
+        const incomingAppId = messaging.message.app_id ? String(messaging.message.app_id) : null;
+        const myAppId = String(process.env.MY_APP_ID);
+
+        // If no app_id (sent via Meta Inbox) or app_id doesn't match our bot (another human tool)
+        if (incomingAppId !== myAppId) {
             const customerId = messaging.recipient?.id; // For echoes, recipient is the customer
-            const text = messaging.message.text;
+            
+            // FIX 2: If admin sends an image/audio, text is null. Provide a fallback so it still saves!
+            const text = messaging.message.text || "📷 [Admin sent an attachment/media]";
             const metaMessageId = messaging.message.mid;
 
-            if (customerId && text) {
+            if (customerId && metaMessageId) {
                 console.log(`[Human Override] Admin reply detected for customer ${customerId}. Saving message and turning off Auto Mode.`);
 
                 // Find or create conversation
@@ -70,14 +77,22 @@ export const handleWebhook = async (body) => {
                 }
             }
         }
-        return; // Exit completely so echo isn't processed as a customer message
+        
+        // Always exit completely so echoes aren't processed as customer messages!
+        return; 
     }
 
     // ==========================================
     // 2. HANDLE INCOMING CUSTOMER MESSAGES
     // ==========================================
     const senderId = GetsenderId(body, platform);
-    const messageText = getMessage(body, platform);
+    
+    // Fallback text if user sends an image/audio
+    let messageText = getMessage(body, platform);
+    if (!messageText && messaging?.message?.attachments) {
+        messageText = "📷 [Customer sent an attachment/media]";
+    }
+
     const metaMessageId = GetMetaMessageId(body, platform);
 
     if (!messageText || !senderId || !metaMessageId) return;
