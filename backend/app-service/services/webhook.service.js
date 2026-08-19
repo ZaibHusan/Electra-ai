@@ -23,7 +23,7 @@ export const handleWebhook = async (body) => {
                     );
                 }
             }
-            return; // Exit completely, never process echo as customer message
+            return // Exit completely, never process echo as customer message
         }
     }
 
