@@ -3,30 +3,79 @@ import { sendMessage } from "./meta.service.js";
 import Message from "../models/message.model.js";
 import Conversation from "../models/conversation.model.js";
 import SystemSettings from "../models/systemSettings.model.js";
-import { getIO } from "../sockets/socket.js";
+import { getIO } from "../sockets/socket.js"; 
 
 export const handleWebhook = async (body) => {
     const platform = detectPlatform(body);
+    if (!platform) return;
 
-    // 1. Check for human echo messages first (Instagram / Messenger)
-    if ((platform === "messenger" || platform === "instagram")) {
-        const msg = body.entry?.[0]?.messaging?.[0]?.message;
-        if (msg?.is_echo) {
-            // If it's not sent by your bot app, it's a human admin reply!
-            if (msg.app_id !== process.env.MY_APP_ID) {
-                const customerId = body.entry?.[0]?.messaging?.[0]?.recipient?.id;
-                if (customerId) {
-                    console.log(`[Human Override] Human reply detected for customer ${customerId}. Turning off Auto Mode.`);
-                    await Conversation.findOneAndUpdate(
-                        { customerId },
-                        { isAutoMode: false }
-                    );
+    const messaging = body.entry?.[0]?.messaging?.[0];
+
+    // ==========================================
+    // 1. HANDLE ADMIN ECHO MESSAGES (Messenger / Instagram)
+    // ==========================================
+    if ((platform === "messenger" || platform === "instagram") && messaging?.message?.is_echo) {
+        // If sent by a human admin (not your bot app)
+        if (messaging.message.app_id !== process.env.MY_APP_ID) {
+            const customerId = messaging.recipient?.id; // For echoes, recipient is the customer
+            const text = messaging.message.text;
+            const metaMessageId = messaging.message.mid;
+
+            if (customerId && text) {
+                console.log(`[Human Override] Admin reply detected for customer ${customerId}. Saving message and turning off Auto Mode.`);
+
+                // Find or create conversation
+                let conversation = await Conversation.findOne({ customerId });
+                if (!conversation) {
+                    conversation = await Conversation.create({
+                        customerId,
+                        source: platform,
+                        isAutoMode: false,
+                        unreadCount: 0,
+                    });
+                } else {
+                    conversation.isAutoMode = false;
+                    await conversation.save();
+                }
+
+                // Check deduplication for the echo message
+                const isDuplicate = await Message.exists({ metaMessageId });
+                if (!isDuplicate) {
+                    // Save human/admin message to DB
+                    const humanMessage = await Message.create({
+                        conversationId: conversation._id,
+                        senderRole: 'human',
+                        text: text,
+                        metaMessageId: metaMessageId
+                    });
+
+                    // Update conversation preview
+                    await Conversation.findByIdAndUpdate(conversation._id, {
+                        lastMessage: text,
+                        lastMessageAt: humanMessage.createdAt,
+                        unreadCount: 0,
+                        lastReadAt: new Date()
+                    });
+
+                    // 🔥 PUSH TO FRONTEND: Admin Message from Meta Inbox
+                    getIO().to("admin_dashboard").emit("receive_new_message", {
+                        conversationId: conversation._id,
+                        message: {
+                            id: humanMessage._id,
+                            senderRole: 'human',
+                            text: humanMessage.text,
+                            timestamp: humanMessage.createdAt
+                        }
+                    });
                 }
             }
-            return // Exit completely, never process echo as customer message
         }
+        return; // Exit completely so echo isn't processed as a customer message
     }
 
+    // ==========================================
+    // 2. HANDLE INCOMING CUSTOMER MESSAGES
+    // ==========================================
     const senderId = GetsenderId(body, platform);
     const messageText = getMessage(body, platform);
     const metaMessageId = GetMetaMessageId(body, platform);
@@ -34,15 +83,15 @@ export const handleWebhook = async (body) => {
     if (!messageText || !senderId || !metaMessageId) return;
 
     try {
-        // 2. Deduplication check
+        // Deduplication check
         const isDuplicate = await Message.exists({ metaMessageId });
         if (isDuplicate) return;
 
-        // 3. Check Global Kill Switch state from DB
+        // Check Global Kill Switch state from DB
         const systemSettings = await SystemSettings.findOne({ key: 'AI_SYSTEM_STATE' });
         const isGlobalAiActive = systemSettings ? systemSettings.isActive : true;
 
-        // 4. Find or create conversation
+        // Find or create conversation
         let conversation = await Conversation.findOne({ customerId: senderId });
 
         if (!conversation) {
@@ -54,7 +103,7 @@ export const handleWebhook = async (body) => {
             });
         }
 
-        // 5. Save incoming customer message
+        // Save incoming customer message
         const userMessage = await Message.create({
             conversationId: conversation._id,
             senderRole: 'user',
@@ -62,7 +111,7 @@ export const handleWebhook = async (body) => {
             metaMessageId: metaMessageId
         });
 
-        // 6. Update Conversation: set last message & increment unread counter
+        // Update Conversation: set last message & increment unread counter
         await Conversation.findByIdAndUpdate(conversation._id, {
             lastMessage: messageText,
             lastMessageAt: userMessage.createdAt,
@@ -80,7 +129,7 @@ export const handleWebhook = async (body) => {
             }
         });
 
-        // 7. Handle AI reply only if BOTH Global AI & Per-User Auto Mode are ON
+        // Handle AI reply only if BOTH Global AI & Per-User Auto Mode are ON
         if (isGlobalAiActive && conversation.isAutoMode) {
             const replyText = await callAgent(senderId, messageText);
 
@@ -141,12 +190,10 @@ function GetsenderId(body, platform) {
 }
 
 function getMessage(body, platform) {
-    const msg = body.entry?.[0]?.messaging?.[0]?.message;
-
     if (platform === "whatsapp") {
         return body.entry?.[0]?.changes?.[0]?.value?.messages?.[0]?.text?.body;
     }
-
+    const msg = body.entry?.[0]?.messaging?.[0]?.message;
     return msg?.text ?? null;
 }
 
