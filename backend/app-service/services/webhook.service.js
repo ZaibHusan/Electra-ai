@@ -2,10 +2,31 @@ import { callAgent } from "./agent.service.js";
 import { sendMessage } from "./meta.service.js";
 import Message from "../models/message.model.js";
 import Conversation from "../models/conversation.model.js";
-import { getIO } from "../sockets/socket.js"; // 🔥 Import Socket.io helper
+import SystemSettings from "../models/systemSettings.model.js";
+import { getIO } from "../sockets/socket.js";
 
 export const handleWebhook = async (body) => {
     const platform = detectPlatform(body);
+
+    // 1. Check for human echo messages first (Instagram / Messenger)
+    if ((platform === "messenger" || platform === "instagram")) {
+        const msg = body.entry?.[0]?.messaging?.[0]?.message;
+        if (msg?.is_echo) {
+            // If it's not sent by your bot app, it's a human admin reply!
+            if (msg.app_id !== process.env.MY_APP_ID) {
+                const customerId = body.entry?.[0]?.messaging?.[0]?.recipient?.id;
+                if (customerId) {
+                    console.log(`[Human Override] Human reply detected for customer ${customerId}. Turning off Auto Mode.`);
+                    await Conversation.findOneAndUpdate(
+                        { customerId },
+                        { isAutoMode: false }
+                    );
+                }
+            }
+            return; // Exit completely, never process echo as customer message
+        }
+    }
+
     const senderId = GetsenderId(body, platform);
     const messageText = getMessage(body, platform);
     const metaMessageId = GetMetaMessageId(body, platform);
@@ -13,11 +34,15 @@ export const handleWebhook = async (body) => {
     if (!messageText || !senderId || !metaMessageId) return;
 
     try {
-        // 1. Deduplication check
+        // 2. Deduplication check
         const isDuplicate = await Message.exists({ metaMessageId });
         if (isDuplicate) return;
 
-        // 2. Find or create conversation
+        // 3. Check Global Kill Switch state from DB
+        const systemSettings = await SystemSettings.findOne({ key: 'AI_SYSTEM_STATE' });
+        const isGlobalAiActive = systemSettings ? systemSettings.isActive : true;
+
+        // 4. Find or create conversation
         let conversation = await Conversation.findOne({ customerId: senderId });
 
         if (!conversation) {
@@ -25,11 +50,11 @@ export const handleWebhook = async (body) => {
                 customerId: senderId,
                 source: platform,
                 isAutoMode: true,
-                unreadCount: 1, // First message is unread
+                unreadCount: 1, 
             });
         }
 
-        // 3. Save incoming customer message
+        // 5. Save incoming customer message
         const userMessage = await Message.create({
             conversationId: conversation._id,
             senderRole: 'user',
@@ -37,11 +62,11 @@ export const handleWebhook = async (body) => {
             metaMessageId: metaMessageId
         });
 
-        // 4. Update Conversation: set last message & increment unread counter
+        // 6. Update Conversation: set last message & increment unread counter
         await Conversation.findByIdAndUpdate(conversation._id, {
             lastMessage: messageText,
             lastMessageAt: userMessage.createdAt,
-            $inc: { unreadCount: 1 } // Increment unread count by 1
+            $inc: { unreadCount: 1 } 
         });
 
         // 🔥 PUSH TO FRONTEND: New Customer Message
@@ -55,8 +80,8 @@ export const handleWebhook = async (body) => {
             }
         });
 
-        // 5. Handle AI reply if Auto Mode is ON
-        if (conversation.isAutoMode) {
+        // 7. Handle AI reply only if BOTH Global AI & Per-User Auto Mode are ON
+        if (isGlobalAiActive && conversation.isAutoMode) {
             const replyText = await callAgent(senderId, messageText);
 
             if (replyText) {
@@ -66,11 +91,10 @@ export const handleWebhook = async (body) => {
                     text: replyText
                 });
 
-                // Update lastMessage preview with AI response AND clear unread count
                 await Conversation.findByIdAndUpdate(conversation._id, {
                     lastMessage: replyText,
                     lastMessageAt: aiMessage.createdAt,
-                    unreadCount: 0, // AI handled it, so mark as read!
+                    unreadCount: 0, 
                     lastReadAt: new Date()
                 });
 
@@ -88,6 +112,8 @@ export const handleWebhook = async (body) => {
                     }
                 });
             }
+        } else {
+            console.log(`[AI Skipped] Global AI Active: ${isGlobalAiActive} | User Auto Mode: ${conversation.isAutoMode}`);
         }
     } catch (error) {
         if (error.code !== 11000) {
@@ -100,80 +126,22 @@ export const handleWebhook = async (body) => {
 // HELPER FUNCTIONS
 // ==========================================
 
-function GetimgUrl(body, platform) {
-    let imgUrl;
-    if (platform === "messenger" || platform === "instagram") {
-        imgUrl = body.entry?.[0]
-            ?.messaging?.[0]
-            ?.message?.attachments?.[0]
-            ?.payload?.url
-    }
-
-    if (imgUrl) {
-        console.log("imgUrl", imgUrl);
-    }
-    return imgUrl
-}
-
-function GetVoiceUrl(body, platform) {
-    let voiceUrl;
-    if (platform === "messenger" || platform === "instagram") {
-        const attachment = body.entry?.[0]
-            ?.messaging?.[0]
-            ?.message?.attachments?.[0];
-
-        if (attachment?.type === "audio") {
-            voiceUrl = attachment?.payload?.url;
-        }
-    }
-
-    if (voiceUrl) {
-        console.log("voiceUrl", voiceUrl);
-    }
-    return voiceUrl
-}
-
 function detectPlatform(body) {
-    if (body.object === "whatsapp_business_account") {
-        return "whatsapp";
-    }
-    if (body.object === "instagram") {
-        return "instagram";
-    }
-    if (body.object === "page") {
-        return "messenger";
-    }
+    if (body.object === "whatsapp_business_account") return "whatsapp";
+    if (body.object === "instagram") return "instagram";
+    if (body.object === "page") return "messenger";
     return null;
 }
 
 function GetsenderId(body, platform) {
     if (platform === "whatsapp") {
-        return body.entry?.[0]
-            ?.changes?.[0]
-            ?.value?.messages?.[0]
-            ?.from;
+        return body.entry?.[0]?.changes?.[0]?.value?.messages?.[0]?.from;
     }
-    if (platform === "messenger") {
-        return body.entry?.[0]
-            ?.messaging?.[0]
-            ?.sender?.id;
-    }
-
-    return body.entry?.[0]
-        ?.messaging?.[0]
-        ?.sender?.id;
+    return body.entry?.[0]?.messaging?.[0]?.sender?.id;
 }
 
 function getMessage(body, platform) {
     const msg = body.entry?.[0]?.messaging?.[0]?.message;
-
-    if ((platform === "messenger" || platform === "instagram") && msg?.is_echo) {
-        if (msg.app_id !== process.env.MY_APP_ID) {
-            console.log("Human reply detected — pausing bot for this user");
-            // e.g. markUserAsHumanHandled(senderId)
-        }
-        return null; // still don't process the echo as a customer message
-    }
 
     if (platform === "whatsapp") {
         return body.entry?.[0]?.changes?.[0]?.value?.messages?.[0]?.text?.body;
@@ -186,6 +154,5 @@ function GetMetaMessageId(body, platform) {
     if (platform === "whatsapp") {
         return body.entry?.[0]?.changes?.[0]?.value?.messages?.[0]?.id;
     }
-    // Messenger and Instagram both use 'mid'
     return body.entry?.[0]?.messaging?.[0]?.message?.mid;
 }
